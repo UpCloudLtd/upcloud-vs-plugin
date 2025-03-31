@@ -9,28 +9,26 @@ import { ParsedIniData } from "@aws-sdk/types";
 import * as s3_helper from '../s3/S3Helper'
 import * as fs from 'fs';
 import * as S3TreeView from '../s3/S3TreeView';
+import { AwsCredentialIdentity } from '@aws-sdk/types';
+import * as fsp from 'fs/promises';
 
 
 import { fromNodeProviderChain } from "@aws-sdk/credential-providers";
 export async function GetCredentials() {
-  let credentials;
+  let credentials: AwsCredentialIdentity | undefined;
 
   try {
-    if (S3TreeView.S3TreeView.Current) {
-      process.env.AWS_PROFILE = S3TreeView.S3TreeView.Current.AwsProfile ;
-    }
-    // Get credentials using the default provider chain.
-    const provider = fromNodeProviderChain();
-    credentials = await provider();
 
-    if (!credentials) {
-      throw new Error("Aws credentials not found !!!");
-    }
+    const credentials: AwsCredentialIdentity = {
+      accessKeyId: "",
+      secretAccessKey: "",
+    };
 
-    ui.logToOutput("Aws credentials AccessKeyId=" + credentials.accessKeyId);
+    console.log("AWS credentials AccessKeyId=" + credentials.accessKeyId);
+    console.log("AWS credentials AccessKeyId=" + credentials.secretAccessKey);
     return credentials;
   } catch (error: any) {
-    ui.showErrorMessage("Aws Credentials Not Found !!!", error);
+    ui.showErrorMessage("AWS Credentials Not Found !!!", error);
     ui.logToOutput("GetCredentials Error !!!", error);
     return credentials;
   }
@@ -40,6 +38,8 @@ import { S3, S3Client, SelectObjectContentCommandOutput } from "@aws-sdk/client-
 
 export async function GetS3Client() {
   let credentials = await GetCredentials();
+  console.log("Current AwsRegion1:", S3TreeView.S3TreeView.Current?.AwsRegion);
+  console.log("DEBUG: GetS3Client Current endpoint = " + S3TreeView.S3TreeView.Current?.AwsEndPoint);
   return new S3Client({
     credentials: credentials,
     endpoint: S3TreeView.S3TreeView.Current?.AwsEndPoint,
@@ -305,12 +305,12 @@ export async function UploadFile(Bucket: string, TargetKey: string, SourcePath: 
   let result = new MethodResult<string>();
   try {
     const s3 = await GetS3Client();
-    const stream = fs.createReadStream(SourcePath);
+    const fileBuffer = await fsp.readFile(SourcePath);
     
     const param = {
       Bucket,
       Key: TargetKey,
-      Body: stream,
+      Body: fileBuffer,
     };
 
     const command = new PutObjectCommand(param);
