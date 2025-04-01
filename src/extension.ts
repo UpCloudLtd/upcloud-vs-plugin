@@ -84,10 +84,6 @@ export function activate(context: vscode.ExtensionContext) {
 		treeView.ShowS3Search(node);
 	});
 
-	vscode.commands.registerCommand('S3TreeView.SelectAwsProfile', (node: S3TreeItem) => {
-		treeView.SelectAwsProfile(node);
-	});
-
 	vscode.commands.registerCommand('S3TreeView.UpdateAwsEndPoint', () => {
 		treeView.UpdateAwsEndPoint();
 	});
@@ -102,10 +98,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 	vscode.commands.registerCommand('S3TreeView.SelectProfile', () => {
 		treeView.SelectS3Profile();
-	});
-
-	vscode.commands.registerCommand('S3TreeView.AddProfile', () => {
-		treeView.AddS3Profile();
 	});
 
 	vscode.commands.registerCommand('S3TreeView.AddUpCloudProfile', () => {

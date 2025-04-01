@@ -4,7 +4,6 @@ import { MethodResult } from './MethodResult';
 import { homedir } from "os";
 import { sep } from "path";
 import { join } from "path";
-import { parseKnownFiles, SourceProfileInit } from "../aws-sdk/parseKnownFiles";
 import { ParsedIniData } from "@aws-sdk/types";
 import * as s3_helper from '../s3/S3Helper'
 import * as fs from 'fs';
@@ -867,35 +866,6 @@ export async function TestAwsConnection(Region: string="us-east-1"): Promise<Met
     result.error = error;
     return result;
   }
-}
-
-export async function GetAwsProfileList(): Promise<MethodResult<string[]>> {
-  ui.logToOutput("api.GetAwsProfileList Started");
-
-  let result:MethodResult<string[]> = new MethodResult<string[]>();
-
-  try 
-  {
-    let profileData = await getIniProfileData();
-    
-    result.result = Object.keys(profileData);
-    result.isSuccessful = true;
-    return result;
-  } 
-  catch (error:any) 
-  {
-    result.isSuccessful = false;
-    result.error = error;
-    ui.showErrorMessage('api.GetAwsProfileList Error !!!', error);
-    ui.logToOutput("api.GetAwsProfileList Error !!!", error); 
-    return result;
-  }
-}
-
-export async function getIniProfileData(init: SourceProfileInit = {}):Promise<ParsedIniData>
-{
-    const profiles = await parseKnownFiles(init);
-    return profiles;
 }
 
 export const ENV_CREDENTIALS_PATH = "AWS_SHARED_CREDENTIALS_FILE";

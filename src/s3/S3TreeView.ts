@@ -7,7 +7,6 @@ import * as api from '../common/API';
 import { S3Explorer } from './S3Explorer';
 import { S3Search } from './S3Search';
 import { S3Profile } from '../common/S3Profile';
-import { S3ProfileForm } from './S3ProfileForm';
 import { S3Client } from '@aws-sdk/client-s3';
 
 export class S3TreeView {
@@ -453,21 +452,6 @@ export class S3TreeView {
 		S3Search.Render(this.context.extensionUri, node);
 	}
 
-	async SelectAwsProfile(node: S3TreeItem) {
-		ui.logToOutput('S3TreeView.SelectAwsProfile Started');
-
-		var result = await api.GetAwsProfileList();
-		if(!result.isSuccessful){ return; }
-
-		let selectedAwsProfile = await vscode.window.showQuickPick(result.result, {canPickMany:false, placeHolder: 'Select Aws Profile'});
-		if(!selectedAwsProfile){ return; }
-
-		this.AwsProfile = selectedAwsProfile;
-		this.SaveState();
-		this.SetFilterMessage();
-		this.treeDataProvider.Refresh();
-	}
-
 	async UpdateAwsEndPoint() {
 		ui.logToOutput('S3TreeView.UpdateAwsEndPoint Started');
 
@@ -503,12 +487,7 @@ export class S3TreeView {
 		this.SelectedProfileName = selected;
 		this.SaveState();
 		this.treeDataProvider.Refresh(); // refresh tree for new profile
-	}
-
-	async AddS3Profile() {
-		S3ProfileForm.Show(this.context.extensionUri);
-	}
-	
+	}	
 
 	public GetSelectedProfile(): S3Profile | undefined {
 		return this.S3ProfileList.find(p => p.name === this.SelectedProfileName);
