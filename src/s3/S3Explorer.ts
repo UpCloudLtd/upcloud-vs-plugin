@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 import * as ui from '../common/UI';
 import * as api from '../common/API';
 import { S3TreeView } from "./S3TreeView";
-import { S3TreeItem, TreeItemType } from "./S3TreeItem";
+import { S3TreeItem, S3TreeItemType } from "./S3TreeItem";
 import { S3ExplorerItem } from "./S3ExplorerItem";
 import * as s3_helper from "./S3Helper";
 import { S3Search } from "./S3Search";
@@ -32,11 +32,11 @@ export class S3Explorer {
     }
 
     public SetS3ExplorerItem(node:S3TreeItem){
-        if(node.TreeItemType === TreeItemType.Bucket && node.Bucket)
+        if(node.TreeItemType === S3TreeItemType.Bucket && node.Bucket)
         {
             this.S3ExplorerItem = new S3ExplorerItem(node.Bucket, "");
         }
-        else if(node.TreeItemType === TreeItemType.Shortcut && node.Bucket && node.Shortcut)
+        else if(node.TreeItemType === S3TreeItemType.Shortcut && node.Bucket && node.Shortcut)
         {
             this.S3ExplorerItem = new S3ExplorerItem(node.Bucket, node.Shortcut);
         }
@@ -57,7 +57,11 @@ export class S3Explorer {
         ui.logToOutput('S3Explorer.LoadLogs Started');
         if(!S3TreeView.Current){return;}
 
-        var result = await api.GetFolderList(this.S3ExplorerItem.Bucket, this.S3ExplorerItem.Key);
+        var result = await api.GetFolderList(
+            this.S3ExplorerItem.Bucket,
+            this.S3ExplorerItem.Key,
+            S3TreeView.Current?.ActiveS3Client 
+          );
         if(result.isSuccessful)
         {
             this.S3ObjectList = result.result;
@@ -70,28 +74,37 @@ export class S3Explorer {
 
     }
 
-    public static Render(extensionUri: vscode.Uri, node:S3TreeItem, changeKey:string|undefined=undefined) {
+    public static Render(extensionUri: vscode.Uri, node: S3TreeItem, changeKey: string | undefined = undefined) {
         ui.logToOutput('S3Explorer.Render Started');
+      
+        // Save the custom s3Client (if passed) to the tree view or global location
+        const clientFromNode = node.s3Client;
+        if (clientFromNode && S3TreeView.Current) {
+          S3TreeView.Current.ActiveS3Client = clientFromNode; // You may need to define this field
+        }
+      
         if (S3Explorer.Current) {
-            S3Explorer.Current.ResetCurrentState();
-            S3Explorer.Current.SetS3ExplorerItem(node);
-            S3Explorer.Current.Load();
-            S3Explorer.Current._panel.reveal(vscode.ViewColumn.One);
-        } 
-        else 
-        {
-            const panel = vscode.window.createWebviewPanel("S3Explorer", "S3 Explorer", vscode.ViewColumn.One, {
-                enableScripts: true,
-            });
-
-            S3Explorer.Current = new S3Explorer(panel, extensionUri, node);
+          S3Explorer.Current.ResetCurrentState();
+          S3Explorer.Current.SetS3ExplorerItem(node);
+          S3Explorer.Current.Load();
+          S3Explorer.Current._panel.reveal(vscode.ViewColumn.One);
+          console.log("DEBUG: Render 1 Custom client set =", !!clientFromNode);
+        } else {
+          const panel = vscode.window.createWebviewPanel("S3Explorer", "S3 Explorer", vscode.ViewColumn.One, {
+            enableScripts: true,
+          });
+      
+          S3Explorer.Current = new S3Explorer(panel, extensionUri, node);
+          console.log("DEBUG: Render 2 Custom client set =", !!clientFromNode);
         }
-        if(changeKey)
-        {
-            S3Explorer.Current.S3ExplorerItem.Key = changeKey;
-            S3Explorer.Current.Load();
+      
+        if (changeKey) {
+          S3Explorer.Current.S3ExplorerItem.Key = changeKey;
+          S3Explorer.Current.Load();
+          console.log("DEBUG: Render 3 Custom client set =", !!clientFromNode);
         }
-    }
+      }
+      
 
     public GetFileExtension(Key:string | undefined)
     {
@@ -506,12 +519,12 @@ export class S3Explorer {
                         let node:S3TreeItem;
                         if(this.S3ExplorerItem.IsRoot())
                         {
-                            node = new S3TreeItem("", TreeItemType.Bucket);
+                            node = new S3TreeItem("", S3TreeItemType.Bucket);
                             node.Bucket = this.S3ExplorerItem.Bucket;
                         }
                         else
                         {
-                            node = new S3TreeItem("", TreeItemType.Shortcut);
+                            node = new S3TreeItem("", S3TreeItemType.Shortcut);
                             node.Bucket = this.S3ExplorerItem.Bucket;
                             node.Shortcut = this.S3ExplorerItem.Key;
                         }

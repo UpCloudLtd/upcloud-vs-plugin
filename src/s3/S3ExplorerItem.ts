@@ -1,15 +1,18 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import * as path from "path";
 import * as s3_helper from './S3Helper';
+import { S3Client } from "@aws-sdk/client-s3";
 
 export class S3ExplorerItem {
 
 	public Bucket:string;
 	public Key:string;
+	public S3Client?: S3Client;
 
-	constructor(Bucket:string, Key:string) {
+	constructor(Bucket: string, Key: string, S3Client?: S3Client) {
 		this.Bucket = Bucket;
 		this.Key = Key;
+		this.S3Client = S3Client;
 	}
 
 	public IsRoot():boolean

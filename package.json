@@ -24,6 +24,30 @@
   "contributes": {
     "commands": [
       {
+        "command": "S3TreeView.AddProfile",
+        "title": "S3TreeView: Add Profile"
+      },
+      {
+        "command": "S3TreeView.SelectProfile",
+        "title": "S3TreeView: Select Profile"
+      },
+      {
+        "command": "S3TreeView.AddUpCloudProfile",
+        "title": "S3TreeView: Add UpCloud Profile"
+      },
+      {
+        "command": "S3TreeView.SelectUpCloudProfile",
+        "title": "S3TreeView: Select UpCloud Profile"
+      },
+      {
+        "command": "S3TreeView.EnterKeysForStorage",
+        "title": "Enter Access Keys for Object Storage"
+      },
+      {
+        "command": "UpCloudTreeView.Refresh",
+        "title": "Refresh UpCloud Tree"
+      },
+      {
         "command": "S3TreeView.Refresh",
         "title": "Refresh",
         "icon": "$(refresh)"
@@ -246,6 +270,12 @@
       ]
     },
     "views": {
+      "explorer": [
+        {
+          "id": "UpCloudTreeView",
+          "name": "UpCloud Object Storage"
+        }
+      ],
       "aws-s3-vscode-extension": [
         {
           "id": "S3TreeView",
@@ -284,7 +314,7 @@
     "@aws-sdk/client-iam": "^3.750.0",
     "@aws-sdk/client-s3": "^3.750.0",
     "@aws-sdk/client-sts": "^3.750.0",
-    "@aws-sdk/credential-providers": "^3.750.0",
+    "@aws-sdk/credential-providers": "^3.777.0",
     "@vscode-elements/elements": "^1.13.1",
     "@vscode/codicons": "^0.0.36",
     "tmp": "^0.2.3"

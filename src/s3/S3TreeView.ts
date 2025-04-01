@@ -1,15 +1,19 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import * as vscode from 'vscode';
-import { S3TreeItem, TreeItemType } from './S3TreeItem';
+import { S3TreeItem, S3TreeItemType } from './S3TreeItem';
 import { S3TreeDataProvider } from './S3TreeDataProvider';
 import * as ui from '../common/UI';
 import * as api from '../common/API';
 import { S3Explorer } from './S3Explorer';
 import { S3Search } from './S3Search';
+import { S3Profile } from '../common/S3Profile';
+import { S3ProfileForm } from './S3ProfileForm';
+import { S3Client } from '@aws-sdk/client-s3';
 
 export class S3TreeView {
 
 	public static Current: S3TreeView | undefined;
+	public ActiveS3Client: S3Client | undefined;
 	public view: vscode.TreeView<S3TreeItem>;
 	public treeDataProvider: S3TreeDataProvider;
 	public context: vscode.ExtensionContext;
@@ -21,6 +25,8 @@ export class S3TreeView {
 	public AwsRegion: string | undefined;
 	public IsSharedIniFileCredentials: boolean = false;
 	public CredentialProviderName: string | undefined;
+	public S3ProfileList: S3Profile[] = [];
+	public SelectedProfileName: string = '';
 
 	constructor(context: vscode.ExtensionContext) {
 		ui.logToOutput('TreeView.constructor Started');
@@ -116,7 +122,7 @@ export class S3TreeView {
 
 	async ShowOnlyInThisProfile(node: S3TreeItem) {
 		ui.logToOutput('S3TreeView.ShowOnlyInThisProfile Started');
-		if (node.TreeItemType !== TreeItemType.Bucket) { return; }
+		if (node.TreeItemType !== S3TreeItemType.Bucket) { return; }
 		if (!node.Bucket) { return; }
 		
 		if(this.AwsProfile)
@@ -130,7 +136,7 @@ export class S3TreeView {
 
 	async ShowInAnyProfile(node: S3TreeItem) {
 		ui.logToOutput('S3TreeView.ShowInAnyProfile Started');
-		if (node.TreeItemType !== TreeItemType.Bucket) { return; }
+		if (node.TreeItemType !== S3TreeItemType.Bucket) { return; }
 		if (!node.Bucket) { return; }
 		
 		node.ProfileToShow = "";
@@ -191,6 +197,10 @@ export class S3TreeView {
 			this.context.globalState.update('AwsEndPoint', this.AwsEndPoint);
 			this.context.globalState.update('AwsRegion', this.AwsRegion);
 			this.context.globalState.update('BucketProfileList', this.treeDataProvider.BucketProfileList);
+			this.context.globalState.update('S3ProfileList', this.S3ProfileList);
+			this.context.globalState.update('SelectedProfileName', this.SelectedProfileName);
+			this.context.globalState.update('BucketListByProfile', this.treeDataProvider.BucketListByProfile);
+
 
 			ui.logToOutput("S3TreeView.saveState Successfull");
 		} catch (error) {
@@ -202,10 +212,22 @@ export class S3TreeView {
 		ui.logToOutput('S3TreeView.loadState Started');
 		try {
 
+			// TODO: AwsProfile will need to be deleted
 			let AwsProfileTemp: string | undefined = this.context.globalState.get('AwsProfile');
 			if (AwsProfileTemp) {
 				this.AwsProfile = AwsProfileTemp;
 			}
+
+			let profileList: S3Profile[] | undefined = this.context.globalState.get('S3ProfileList');
+			if (profileList) this.S3ProfileList = profileList;
+
+			let selectedProfile: string | undefined = this.context.globalState.get('SelectedProfileName');
+			if (selectedProfile) this.SelectedProfileName = selectedProfile;
+
+			let bucketMap: { [profileName: string]: string[] } | undefined = this.context.globalState.get('BucketListByProfile');
+			if (bucketMap) {
+				this.treeDataProvider.BucketListByProfile = bucketMap;
+			}			
 
 			let filterStringTemp: string | undefined = this.context.globalState.get('FilterString');
 			if (filterStringTemp) {
@@ -278,7 +300,7 @@ export class S3TreeView {
 	}
 
 	async SetFilterMessage(){
-		if(this.treeDataProvider.BucketList.length > 0)
+		if(this.treeDataProvider.GetBucketList().length > 0)
 		{
 			this.view.message = 
 			await this.GetFilterProfilePrompt()
@@ -318,12 +340,13 @@ export class S3TreeView {
 			this.SetFilterMessage();
 		}
 		this.SaveState();
+		this.treeDataProvider.Refresh();
 	}
 
 	async RemoveBucket(node: S3TreeItem) {
 		ui.logToOutput('S3TreeView.RemoveBucket Started');
 		
-		if(node.TreeItemType !== TreeItemType.Bucket) { return;}
+		if(node.TreeItemType !== S3TreeItemType.Bucket) { return;}
 		if(!node.Bucket) { return; }
 
 		this.treeDataProvider.RemoveBucket(node.Bucket);
@@ -334,7 +357,7 @@ export class S3TreeView {
 	async Goto(node: S3TreeItem) {
 		ui.logToOutput('S3TreeView.Goto Started');
 		
-		if(node.TreeItemType !== TreeItemType.Bucket) { return;}
+		if(node.TreeItemType !== S3TreeItemType.Bucket) { return;}
 		if(!node.Bucket) { return; }
 
 		let shortcut = await vscode.window.showInputBox({ placeHolder: 'Enter a Folder/File Key' });
@@ -388,7 +411,7 @@ export class S3TreeView {
 
 	async RemoveShortcut(node: S3TreeItem) {
 		ui.logToOutput('S3TreeView.RemoveShortcut Started');
-		if(node.TreeItemType !== TreeItemType.Shortcut) { return;}
+		if(node.TreeItemType !== S3TreeItemType.Shortcut) { return;}
 		if(!node.Bucket || !node.Shortcut) { return; }
 		
 		this.treeDataProvider.RemoveShortcut(node.Bucket, node.Shortcut);
@@ -398,7 +421,7 @@ export class S3TreeView {
 
 	async CopyShortcut(node: S3TreeItem) {
 		ui.logToOutput('S3TreeView.CopyShortcut Started');
-		if(node.TreeItemType !== TreeItemType.Shortcut) { return;}
+		if(node.TreeItemType !== S3TreeItemType.Shortcut) { return;}
 		if(!node.Bucket || !node.Shortcut) { return; }
 		
 		vscode.env.clipboard.writeText(node.Shortcut)
@@ -418,7 +441,7 @@ export class S3TreeView {
 
 	async ShowS3Explorer(node: S3TreeItem) {
 		ui.logToOutput('S3TreeView.ShowS3Explorer Started');
-		
+		console.log("DEBUG: ShowS3Explorer Current endpoint = " + S3TreeView.Current?.AwsEndPoint);
 
 		S3Explorer.Render(this.context.extensionUri, node);
 	}
@@ -472,5 +495,23 @@ export class S3TreeView {
 		this.SaveState();
 	}
 
+	async SelectS3Profile() {
+		const names = this.S3ProfileList.map(p => p.name);
+		const selected = await vscode.window.showQuickPick(names, { placeHolder: 'Select S3 Profile' });
+		if (!selected) return;
+	
+		this.SelectedProfileName = selected;
+		this.SaveState();
+		this.treeDataProvider.Refresh(); // refresh tree for new profile
+	}
+
+	async AddS3Profile() {
+		S3ProfileForm.Show(this.context.extensionUri);
+	}
+	
+
+	public GetSelectedProfile(): S3Profile | undefined {
+		return this.S3ProfileList.find(p => p.name === this.SelectedProfileName);
+	}
 
 }

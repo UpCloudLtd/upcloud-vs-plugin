@@ -2,6 +2,10 @@ import * as vscode from 'vscode';
 import * as ui from './common/UI';
 import { S3TreeView } from './s3/S3TreeView';
 import { S3TreeItem } from './s3/S3TreeItem';
+import { UpCloudProfileForm } from './upcloud/UpCloudProfileForm';
+import { UpCloudProfileManager } from './upcloud/UpCloudProfileManager';
+import { UpCloudTreeDataProvider } from './s3/UpCloudTreeDataProvider';
+import { UpCloudKeyForm } from './upcloud/UpCloudKeyForm';
 
 export function activate(context: vscode.ExtensionContext) {
 	ui.logToOutput('Aws S3 Extension activation started');
@@ -95,6 +99,44 @@ export function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('S3TreeView.TestAwsConnection', () => {
 		treeView.TestAwsConnection();
 	});
+
+	vscode.commands.registerCommand('S3TreeView.SelectProfile', () => {
+		treeView.SelectS3Profile();
+	});
+
+	vscode.commands.registerCommand('S3TreeView.AddProfile', () => {
+		treeView.AddS3Profile();
+	});
+
+	vscode.commands.registerCommand('S3TreeView.AddUpCloudProfile', () => {
+		UpCloudProfileForm.Show(context);
+	});
+
+	vscode.commands.registerCommand('S3TreeView.SelectUpCloudProfile', async () => {
+		await UpCloudProfileManager.SelectProfile(context);
+	});
+
+	vscode.commands.registerCommand('S3TreeView.EnterKeysForStorage', (storage) => {
+		UpCloudKeyForm.Show(context, storage);
+	  });
+	  
+	  vscode.commands.registerCommand('UpCloudTreeView.Refresh', () => {
+		upCloudTreeProvider.refresh();
+	  });
+
+	const upCloudTreeProvider = new UpCloudTreeDataProvider(context);
+	vscode.window.createTreeView('UpCloudTreeView', {
+	  treeDataProvider: upCloudTreeProvider,
+	  showCollapseAll: true,
+	});
+
+	vscode.commands.registerCommand('S3TreeView.OpenExplorerFromUpCloudBucket', (item: S3TreeItem) => {
+		console.log('Command triggered, client exists =', !!item.s3Client);
+	  
+		// ✅ Now you have the real instance, just pass it along
+		const S3Explorer = require('./s3/S3Explorer'); // or `import` if it's available
+		S3Explorer.S3Explorer.Render(context.extensionUri, item);
+	  });
 
 	ui.logToOutput('Aws S3 Extension activation completed');
 }

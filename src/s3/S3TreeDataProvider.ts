@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import * as vscode from 'vscode';
-import { S3TreeItem, TreeItemType } from './S3TreeItem';
+import { S3TreeItem, S3TreeItemType } from './S3TreeItem';
 import { S3TreeView } from './S3TreeView';
 import * as ui from '../common/UI';
 
@@ -12,7 +12,7 @@ export class S3TreeDataProvider implements vscode.TreeDataProvider<S3TreeItem>
 	BucketNodeList: S3TreeItem[] = [];
 	ShortcutNodeList: S3TreeItem[] = [];
 
-	public BucketList: string[] = [];
+	public BucketListByProfile: { [profileName: string]: string[] } = {};
 	public ShortcutList: { Bucket:string, Shortcut:string }[] = [];
 	public ViewType:ViewType = ViewType.Bucket_Shortcut;
 	public BucketProfileList: { Bucket:string, Profile:string }[] = [];
@@ -22,11 +22,15 @@ export class S3TreeDataProvider implements vscode.TreeDataProvider<S3TreeItem>
 	}
 
 	Refresh(): void {
+		this.LoadBucketNodeList();
 		this._onDidChangeTreeData.fire();
 	}
 
 	public GetBucketList(){
-		return this.BucketList;
+		const profileName = S3TreeView.Current?.SelectedProfileName;
+		if (!profileName) return [];
+	
+		return this.BucketListByProfile[profileName] || [];
 	}
 
 	public GetShortcutList(){
@@ -34,7 +38,10 @@ export class S3TreeDataProvider implements vscode.TreeDataProvider<S3TreeItem>
 	}
 
 	public SetBucketList(BucketList: string[]){
-		this.BucketList = BucketList;
+		const profileName = S3TreeView.Current?.SelectedProfileName;
+		if (!profileName) return;
+	
+		this.BucketListByProfile[profileName] = BucketList;
 		this.LoadBucketNodeList();
 	}
 
@@ -76,32 +83,43 @@ export class S3TreeDataProvider implements vscode.TreeDataProvider<S3TreeItem>
 	}
 
 	AddBucket(Bucket:string){
-		if(this.BucketList.includes(Bucket)){ return; }
-
-		this.BucketList.push(Bucket);
-		this.LoadBucketNodeList();
-		this.Refresh();
+		const profileName = S3TreeView.Current?.SelectedProfileName;
+		if (!profileName) return;
+		
+		if (!this.BucketListByProfile[profileName]) {
+			this.BucketListByProfile[profileName] = [];
+		}
+		
+		if (!this.BucketListByProfile[profileName].includes(Bucket)) {
+			this.BucketListByProfile[profileName].push(Bucket);
+		}
 	}
 
 	RemoveBucket(Bucket:string){
-		for(let i = 0; i < this.ShortcutList.length; i++)
-		{
-			if(this.ShortcutList[i]["Bucket"] === Bucket)
-			{
+		// 🔁 Remove from shortcuts
+		for (let i = 0; i < this.ShortcutList.length; i++) {
+			if (this.ShortcutList[i].Bucket === Bucket) {
 				this.ShortcutList.splice(i, 1);
 				i--;
 			}
 		}
 		this.LoadShortcutNodeList();
 
-		for(let i = 0; i < this.BucketList.length; i++)
-		{
-			if(this.BucketList[i] === Bucket)
-			{
-				this.BucketList.splice(i, 1);
-				i--;
+		// 🧠 Get current profile
+		const profileName = S3TreeView.Current?.SelectedProfileName;
+		if (!profileName) return;
+
+		// 🔁 Remove from profile-specific bucket list
+		const buckets = this.BucketListByProfile[profileName];
+		if (buckets) {
+			for (let i = 0; i < buckets.length; i++) {
+				if (buckets[i] === Bucket) {
+					buckets.splice(i, 1);
+					i--;
+				}
 			}
 		}
+
 		this.LoadBucketNodeList();
 		this.Refresh();
 	}
@@ -173,9 +191,9 @@ export class S3TreeDataProvider implements vscode.TreeDataProvider<S3TreeItem>
 	LoadBucketNodeList(){
 		this.BucketNodeList = [];
 		
-		for(var bucket of this.BucketList)
+		for(var bucket of this.GetBucketList())
 		{
-			let treeItem = new S3TreeItem(bucket, TreeItemType.Bucket);
+			let treeItem = new S3TreeItem(bucket, S3TreeItemType.Bucket);
 			treeItem.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
 			treeItem.Bucket = bucket;
 			treeItem.ProfileToShow = this.GetBucketProfile(bucket);
@@ -188,7 +206,7 @@ export class S3TreeDataProvider implements vscode.TreeDataProvider<S3TreeItem>
 		
 		for(var lg of this.ShortcutList)
 		{
-			let treeItem = new S3TreeItem(lg["Shortcut"], TreeItemType.Shortcut);
+			let treeItem = new S3TreeItem(lg["Shortcut"], S3TreeItemType.Shortcut);
 			treeItem.Bucket = lg["Bucket"];
 			treeItem.Shortcut = lg["Shortcut"];
 			this.ShortcutNodeList.push(treeItem);
@@ -220,7 +238,7 @@ export class S3TreeDataProvider implements vscode.TreeDataProvider<S3TreeItem>
 		if (!node) {
 			result = this.GetBucketNodes();
 		}
-		else if(node.TreeItemType === TreeItemType.Bucket){
+		else if(node.TreeItemType === S3TreeItemType.Bucket){
 			result = this.GetShortcutNodesParentBucket(node);
 		}
 

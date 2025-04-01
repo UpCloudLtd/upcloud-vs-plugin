@@ -20,8 +20,8 @@ export async function GetCredentials() {
   try {
 
     const credentials: AwsCredentialIdentity = {
-      accessKeyId: "",
-      secretAccessKey: "",
+      accessKeyId: "AKIA603C650219A6FD99",
+      secretAccessKey: "fxW2aHT1Q6CTHwOA/4Sq/AUPAOWEUq4YiKoUmvFw",
     };
 
     console.log("AWS credentials AccessKeyId=" + credentials.accessKeyId);
@@ -37,14 +37,22 @@ export async function GetCredentials() {
 import { S3, S3Client, SelectObjectContentCommandOutput } from "@aws-sdk/client-s3";
 
 export async function GetS3Client() {
-  let credentials = await GetCredentials();
-  console.log("Current AwsRegion1:", S3TreeView.S3TreeView.Current?.AwsRegion);
-  console.log("DEBUG: GetS3Client Current endpoint = " + S3TreeView.S3TreeView.Current?.AwsEndPoint);
+  const activeClient = S3TreeView.S3TreeView.Current?.ActiveS3Client;
+  if (activeClient) {
+    return activeClient;
+  }
+
+  const profile = S3TreeView.S3TreeView.Current?.GetSelectedProfile();
+  if (!profile) throw new Error('No S3 profile selected');
+  
   return new S3Client({
-    credentials: credentials,
-    endpoint: S3TreeView.S3TreeView.Current?.AwsEndPoint,
+    region: profile.region,
+    endpoint: profile.endpoint,
+    credentials: {
+      accessKeyId: profile.accessKeyId,
+      secretAccessKey: profile.secretAccessKey,
+    },
     forcePathStyle: true,
-    region: S3TreeView.S3TreeView.Current?.AwsRegion,
   });
 }
 
@@ -57,11 +65,11 @@ export async function GetIAMClient() {
 
 import { ListObjectsV2Command, ListObjectsV2CommandOutput } from "@aws-sdk/client-s3";
 
-export async function GetFolderList(Bucket: string, Key: string): Promise<MethodResult<ListObjectsV2CommandOutput>> {
+export async function GetFolderList(Bucket: string, Key: string, s3Client?: S3Client): Promise<MethodResult<ListObjectsV2CommandOutput>> {
   let result: MethodResult<ListObjectsV2CommandOutput> = new MethodResult<ListObjectsV2CommandOutput>();
 
   try {
-    const s3 = await GetS3Client();
+    const s3 = s3Client || await GetS3Client();
     
     const params = {
       Bucket: Bucket,
@@ -819,7 +827,8 @@ async function GetSTSClient(region: string) {
     {
       region,
       credentials,
-      endpoint: S3TreeView.S3TreeView.Current?.AwsEndPoint,
+      endpoint: S3TreeView.S3TreeView.Current?.ActiveS3Client?.config.endpoint as string | undefined,
+
     }
   );
   return iamClient;
