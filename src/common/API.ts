@@ -37,22 +37,10 @@ import { S3, S3Client, SelectObjectContentCommandOutput } from "@aws-sdk/client-
 
 export async function GetS3Client() {
   const activeClient = S3TreeView.S3TreeView.Current?.ActiveS3Client;
-  if (activeClient) {
-    return activeClient;
+  if (!activeClient) {
+    throw new Error('No active UpCloud S3 client is set. Please select a bucket first.');
   }
-
-  const profile = S3TreeView.S3TreeView.Current?.GetSelectedProfile();
-  if (!profile) throw new Error('No S3 profile selected');
-  
-  return new S3Client({
-    region: profile.region,
-    endpoint: profile.endpoint,
-    credentials: {
-      accessKeyId: profile.accessKeyId,
-      secretAccessKey: profile.secretAccessKey,
-    },
-    forcePathStyle: true,
-  });
+  return activeClient;
 }
 
 import { IAMClient } from "@aws-sdk/client-iam";
@@ -838,25 +826,6 @@ export async function TestAwsCredentials(): Promise<MethodResult<boolean>> {
 
   try {
     const credentials = await GetCredentials();
-
-    result.isSuccessful = true;
-    result.result = true;
-    return result;
-  } catch (error: any) {
-    result.isSuccessful = false;
-    result.error = error;
-    return result;
-  }
-}
-
-export async function TestAwsConnection(Region: string="us-east-1"): Promise<MethodResult<boolean>> {
-  let result: MethodResult<boolean> = new MethodResult<boolean>();
-
-  try {
-    const sts = await GetSTSClient(Region);
-
-    const command = new GetCallerIdentityCommand({});
-    const data = await sts.send(command);
 
     result.isSuccessful = true;
     result.result = true;

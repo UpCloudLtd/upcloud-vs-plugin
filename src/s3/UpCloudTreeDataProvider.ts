@@ -25,6 +25,18 @@ export class UpCloudTreeDataProvider implements vscode.TreeDataProvider<vscode.T
   }
 
   async getChildren(element?: vscode.TreeItem): Promise<vscode.TreeItem[]> {
+    const profile = UpCloudProfileManager.GetSelectedProfile(this.context);
+
+    if (!profile) {
+      const loginItem = new TypedTreeItem("Please log in", TreeItemType.Message);
+      loginItem.command = {
+        command: 'UpCloudTreeView.Login',
+        title: 'Log in',
+        arguments: [],
+      };
+      return [loginItem];
+    }
+    
     if (!element) {
       return [new TypedTreeItem('Object Storages', TreeItemType.RootObjectStorages)];
     }

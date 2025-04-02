@@ -288,34 +288,6 @@ export class S3Search {
                     ${fileCounter} File(s), ${folderCounter} Folder(s) 
                 </th>
             </tr>
-
-        </table>
-        
-        <br>        
-        <br>
-        <br>
-        <br>
-                    
-        <table>
-            <tr>
-                <td>
-                    <a href="https://github.com/necatiarslan/aws-s3/issues/new" style="cursor: pointer; text-decoration: none;">Bug Report & Feature Request</a>
-                </td>
-            </tr>
-        </table>
-        <table>
-            <tr>
-                <td>
-                    <a href="https://bit.ly/s3-extension-survey" style="cursor: pointer; text-decoration: none;">New Feature Survey</a>
-                </td>
-            </tr>
-        </table>
-        <table>
-            <tr>
-                <td>
-                    <a href="https://github.com/sponsors/necatiarslan" style="cursor: pointer; text-decoration: none;">Sponsor me</a>
-                </td>
-            </tr>
         </table>
       </body>
     </html>

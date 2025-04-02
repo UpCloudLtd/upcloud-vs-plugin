@@ -4,6 +4,7 @@ export enum TreeItemType {
   RootObjectStorages = "RootObjectStorages",
   ObjectStorage = "ObjectStorage",
   Bucket = "Bucket",
+  Message = "Message"
 }
 
 export class TypedTreeItem extends vscode.TreeItem {

@@ -84,22 +84,6 @@ export function activate(context: vscode.ExtensionContext) {
 		treeView.ShowS3Search(node);
 	});
 
-	vscode.commands.registerCommand('S3TreeView.UpdateAwsEndPoint', () => {
-		treeView.UpdateAwsEndPoint();
-	});
-
-	vscode.commands.registerCommand('S3TreeView.SetAwsRegion', () => {
-		treeView.SetAwsRegion();
-	});
-
-	vscode.commands.registerCommand('S3TreeView.TestAwsConnection', () => {
-		treeView.TestAwsConnection();
-	});
-
-	vscode.commands.registerCommand('S3TreeView.SelectProfile', () => {
-		treeView.SelectS3Profile();
-	});
-
 	vscode.commands.registerCommand('S3TreeView.AddUpCloudProfile', () => {
 		UpCloudProfileForm.Show(context);
 	});
@@ -110,17 +94,30 @@ export function activate(context: vscode.ExtensionContext) {
 
 	vscode.commands.registerCommand('S3TreeView.EnterKeysForStorage', (storage) => {
 		UpCloudKeyForm.Show(context, storage);
-	  });
+	});
 	  
-	  vscode.commands.registerCommand('UpCloudTreeView.Refresh', () => {
+	vscode.commands.registerCommand('UpCloudTreeView.Refresh', () => {
 		upCloudTreeProvider.refresh();
-	  });
+	});
+
+	vscode.commands.registerCommand('UpCloudTreeView.Logout', async () => {
+		await UpCloudProfileManager.ClearCurrentSession(context);
+		vscode.commands.executeCommand('UpCloudTreeView.Refresh');
+		// TODO: clear other trees if added later
+	});
+
+	vscode.commands.registerCommand('UpCloudTreeView.Login', async () => {
+		const profile = await UpCloudProfileManager.SelectProfile(context);
+		if (profile) {
+		  upCloudTreeProvider.refresh();
+		}
+	});
 
 	const upCloudTreeProvider = new UpCloudTreeDataProvider(context);
-	vscode.window.createTreeView('UpCloudTreeView', {
-	  treeDataProvider: upCloudTreeProvider,
-	  showCollapseAll: true,
-	});
+	vscode.window.registerTreeDataProvider(
+		"UpCloudTreeView",
+		upCloudTreeProvider
+	  );
 
 	vscode.commands.registerCommand('S3TreeView.OpenExplorerFromUpCloudBucket', (item: S3TreeItem) => {
 		console.log('Command triggered, client exists =', !!item.s3Client);

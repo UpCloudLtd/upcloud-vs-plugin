@@ -39,31 +39,6 @@ export class S3TreeView {
 		this.SetFilterMessage();
 	}
 
-	async TestAwsConnection(){
-		let response = await api.TestAwsCredentials()
-		if(response.isSuccessful && response.result){
-			ui.logToOutput('Aws Credentials Found, Test Successfull');
-			ui.showInfoMessage('Aws Credentials Found, Test Successfull');
-		}
-		else{
-			ui.logToOutput('S3TreeView.TestAwsConnection Error !!!', response.error);
-			ui.showErrorMessage('Aws Credentials Can Not Be Found !!!', response.error);
-		}
-		
-		let selectedRegion = await vscode.window.showInputBox({ placeHolder: 'Enter Region Eg: us-east-1', value: 'us-east-1' });
-		if(selectedRegion===undefined){ return; }
-
-		response = await api.TestAwsConnection(selectedRegion)
-		if(response.isSuccessful && response.result){
-			ui.logToOutput('Aws Connection Test Successfull');
-			ui.showInfoMessage('Aws Connection Test Successfull');
-		}
-		else{
-			ui.logToOutput('S3TreeView.TestAwsConnection Error !!!', response.error);
-			ui.showErrorMessage('Aws Connection Test Error !!!', response.error);
-		}
-	}
-
 	Refresh(): void {
 		ui.logToOutput('S3TreeView.refresh Started');
 
@@ -450,47 +425,6 @@ export class S3TreeView {
 		
 
 		S3Search.Render(this.context.extensionUri, node);
-	}
-
-	async UpdateAwsEndPoint() {
-		ui.logToOutput('S3TreeView.UpdateAwsEndPoint Started');
-
-		let awsEndPointUrl = await vscode.window.showInputBox({ placeHolder: 'Enter Aws End Point URL (Leave Empty To Return To Default)', value: this.AwsEndPoint });
-		if(awsEndPointUrl===undefined){ return; }
-		if(awsEndPointUrl.length===0) { this.AwsEndPoint = undefined; }
-		else
-		{
-			this.AwsEndPoint = awsEndPointUrl;
-		}
-		this.SaveState();
-		ui.showInfoMessage('Aws End Point Updated');
-	}
-
-	async SetAwsRegion() {
-		ui.logToOutput('S3TreeView.UpdateAwsRegion Started');
-
-		let awsRegion = await vscode.window.showInputBox({ placeHolder: 'Enter Aws Region (Leave Empty To Return To Default)' });
-		if(awsRegion===undefined){ return; }
-		if(awsRegion.length===0) { this.AwsRegion = undefined; }
-		else
-		{
-			this.AwsRegion = awsRegion;
-		}
-		this.SaveState();
-	}
-
-	async SelectS3Profile() {
-		const names = this.S3ProfileList.map(p => p.name);
-		const selected = await vscode.window.showQuickPick(names, { placeHolder: 'Select S3 Profile' });
-		if (!selected) return;
-	
-		this.SelectedProfileName = selected;
-		this.SaveState();
-		this.treeDataProvider.Refresh(); // refresh tree for new profile
-	}	
-
-	public GetSelectedProfile(): S3Profile | undefined {
-		return this.S3ProfileList.find(p => p.name === this.SelectedProfileName);
 	}
 
 }
