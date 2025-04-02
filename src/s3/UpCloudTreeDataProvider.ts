@@ -8,14 +8,13 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 import { UpCloudKeyManager } from '../upcloud/UpCloudKeyManager';
-import { S3TreeView } from './S3TreeView';
 import { S3TreeItem } from './S3TreeItem';
 import { S3TreeItemType } from './S3TreeItem';
 
 export class UpCloudTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
   private _onDidChangeTreeData: vscode.EventEmitter<vscode.TreeItem | undefined | void> = new vscode.EventEmitter();
   readonly onDidChangeTreeData: vscode.Event<vscode.TreeItem | undefined | void> = this._onDidChangeTreeData.event;
-  
+  public static ActiveS3Client?: S3Client;
   private objectStorages: ObjectStorageConfig[] = [];
 
   constructor(private context: vscode.ExtensionContext) {}
@@ -79,9 +78,7 @@ export class UpCloudTreeDataProvider implements vscode.TreeDataProvider<vscode.T
           },
         });
 
-        if (S3TreeView.Current) {
-          S3TreeView.Current.ActiveS3Client = s3;
-        }
+        UpCloudTreeDataProvider.ActiveS3Client = s3;
 
         const command = new ListBucketsCommand({});
         const response = await s3.send(command);

@@ -36,7 +36,7 @@ export async function GetCredentials() {
 import { S3, S3Client, SelectObjectContentCommandOutput } from "@aws-sdk/client-s3";
 
 export async function GetS3Client() {
-  const activeClient = S3TreeView.S3TreeView.Current?.ActiveS3Client;
+  const activeClient = UpCloudTreeDataProvider.ActiveS3Client;
   if (!activeClient) {
     throw new Error('No active UpCloud S3 client is set. Please select a bucket first.');
   }
@@ -808,13 +808,14 @@ export async function GetBucketList(BucketName?: string): Promise<MethodResult<s
 
 
 import { STSClient, GetCallerIdentityCommand } from "@aws-sdk/client-sts";
+import { UpCloudTreeDataProvider } from "../s3/UpCloudTreeDataProvider";
 async function GetSTSClient(region: string) {
   const credentials = await GetCredentials();
   const iamClient = new STSClient(
     {
       region,
       credentials,
-      endpoint: S3TreeView.S3TreeView.Current?.ActiveS3Client?.config.endpoint as string | undefined,
+      endpoint: UpCloudTreeDataProvider.ActiveS3Client?.config.endpoint as string | undefined,
 
     }
   );

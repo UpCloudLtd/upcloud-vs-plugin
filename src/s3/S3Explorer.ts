@@ -8,6 +8,7 @@ import { S3ExplorerItem } from "./S3ExplorerItem";
 import * as s3_helper from "./S3Helper";
 import { S3Search } from "./S3Search";
 import { ListObjectsV2CommandOutput } from "@aws-sdk/client-s3";
+import { UpCloudTreeDataProvider } from "./UpCloudTreeDataProvider";
 export class S3Explorer {
     public static Current: S3Explorer | undefined;
     private _panel: vscode.WebviewPanel;
@@ -60,7 +61,7 @@ export class S3Explorer {
         var result = await api.GetFolderList(
             this.S3ExplorerItem.Bucket,
             this.S3ExplorerItem.Key,
-            S3TreeView.Current?.ActiveS3Client 
+            UpCloudTreeDataProvider.ActiveS3Client 
           );
         if(result.isSuccessful)
         {
@@ -79,9 +80,9 @@ export class S3Explorer {
       
         // Save the custom s3Client (if passed) to the tree view or global location
         const clientFromNode = node.s3Client;
-        if (clientFromNode && S3TreeView.Current) {
-          S3TreeView.Current.ActiveS3Client = clientFromNode; // You may need to define this field
-        }
+        if (clientFromNode) {
+            UpCloudTreeDataProvider.ActiveS3Client = clientFromNode;
+          }
       
         if (S3Explorer.Current) {
           S3Explorer.Current.ResetCurrentState();

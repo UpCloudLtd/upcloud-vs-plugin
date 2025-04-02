@@ -12,7 +12,6 @@ import { S3Client } from '@aws-sdk/client-s3';
 export class S3TreeView {
 
 	public static Current: S3TreeView | undefined;
-	public ActiveS3Client: S3Client | undefined;
 	public view: vscode.TreeView<S3TreeItem>;
 	public treeDataProvider: S3TreeDataProvider;
 	public context: vscode.ExtensionContext;
