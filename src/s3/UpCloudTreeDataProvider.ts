@@ -19,8 +19,8 @@ export class UpCloudTreeDataProvider implements vscode.TreeDataProvider<vscode.T
 
   constructor(private context: vscode.ExtensionContext) {}
 
-  refresh(): void {
-    this._onDidChangeTreeData.fire();
+  refresh(element?: vscode.TreeItem): void {
+    this._onDidChangeTreeData.fire(element);
   }
 
   async getChildren(element?: vscode.TreeItem): Promise<vscode.TreeItem[]> {
@@ -87,7 +87,6 @@ export class UpCloudTreeDataProvider implements vscode.TreeDataProvider<vscode.T
 
         return response.Buckets.map(bucket => {
           const bucketName = bucket.Name ?? '(no-name)';
-          console.log('Assigning s3 client to bucketItem:', bucketName, '✅', !!s3);
           const bucketItem = new S3TreeItem(bucketName, S3TreeItemType.Bucket, {
             ...updatedStorage,
             bucketName,

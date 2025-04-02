@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { S3Client } from '@aws-sdk/client-s3';
 import * as vscode from 'vscode';
-import { TypedTreeItem } from './TreeItemTypes';
 
 export class S3TreeItem extends vscode.TreeItem {
 	private _isFav: boolean = false;

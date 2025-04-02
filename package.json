@@ -139,6 +139,11 @@
       {
         "command": "UpCloudTreeView.Login",
         "title": "Log in"
+      },
+      {
+        "command": "UpCloudTreeView.RefreshObjectStorage",
+        "title": "Refresh Buckets",
+        "icon": "$(refresh)"
       }
     ],
     "menus": {
@@ -244,6 +249,12 @@
           "command": "S3TreeView.ShowS3Search",
           "when": "view == S3TreeView",
           "group": "inline"
+        },
+        {
+          "command": "UpCloudTreeView.RefreshObjectStorage",
+          "when": "viewItem == ObjectStorage",
+          "group": "inline",
+          "icon": "$(refresh)"
         }
       ]
     },

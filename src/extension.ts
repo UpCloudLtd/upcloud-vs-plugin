@@ -6,6 +6,7 @@ import { UpCloudProfileForm } from './upcloud/UpCloudProfileForm';
 import { UpCloudProfileManager } from './upcloud/UpCloudProfileManager';
 import { UpCloudTreeDataProvider } from './s3/UpCloudTreeDataProvider';
 import { UpCloudKeyForm } from './upcloud/UpCloudKeyForm';
+import { TypedTreeItem } from './s3/TreeItemTypes';
 
 export function activate(context: vscode.ExtensionContext) {
 	ui.logToOutput('Aws S3 Extension activation started');
@@ -118,6 +119,10 @@ export function activate(context: vscode.ExtensionContext) {
 		"UpCloudTreeView",
 		upCloudTreeProvider
 	  );
+
+	vscode.commands.registerCommand('UpCloudTreeView.RefreshObjectStorage', async (element: TypedTreeItem) => {
+	upCloudTreeProvider.refresh(element);
+	});	  
 
 	vscode.commands.registerCommand('UpCloudTreeView.OpenExplorerFromUpCloudBucket', (item: S3TreeItem) => {
 		console.log('Command triggered, client exists =', !!item.s3Client);

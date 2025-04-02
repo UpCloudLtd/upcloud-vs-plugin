@@ -15,5 +15,16 @@ export class TypedTreeItem extends vscode.TreeItem {
     public readonly collapsibleState: vscode.TreeItemCollapsibleState = vscode.TreeItemCollapsibleState.Collapsed
   ) {
     super(label, collapsibleState);
+    this.contextValue = type;
+
+    if (type === TreeItemType.ObjectStorage) {
+      this.command = {
+        command: 'UpCloudTreeView.RefreshObjectStorage',
+        title: 'Refresh',
+        arguments: [this],
+      };
+
+      this.iconPath = new vscode.ThemeIcon('cloud');
+    }
   }
 }
