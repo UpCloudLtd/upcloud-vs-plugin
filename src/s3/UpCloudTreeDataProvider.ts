@@ -65,7 +65,6 @@ export class UpCloudTreeDataProvider implements vscode.TreeDataProvider<vscode.T
       const updatedStorage = await UpCloudKeyManager.PromptForKeysIfMissing(this.context, storage);
 
       if (!updatedStorage) {
-        vscode.commands.executeCommand('S3TreeView.EnterKeysForStorage', storage);
         return [];
       }
 
@@ -101,7 +100,7 @@ export class UpCloudTreeDataProvider implements vscode.TreeDataProvider<vscode.T
           bucketItem.s3Client = s3;
         
           bucketItem.command = {
-            command: 'S3TreeView.OpenExplorerFromUpCloudBucket',
+            command: 'UpCloudTreeView.OpenExplorerFromUpCloudBucket',
             title: 'Open Bucket in Explorer',
             arguments: [bucketItem],
           };

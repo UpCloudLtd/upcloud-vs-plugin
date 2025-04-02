@@ -56,11 +56,6 @@ export class S3TreeView {
 
 	LoadTreeItems(){
 		ui.logToOutput('S3TreeView.loadTreeItems Started');
-
-		//this.treeDataProvider.LoadRegionNodeList();
-		//this.treeDataProvider.LoadLogGroupNodeList();
-		//this.treeDataProvider.LoadLogStreamNodeList();
-		//this.treeDataProvider.Refresh();
 		this.SetViewTitle();
 	}
 

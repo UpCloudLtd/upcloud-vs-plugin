@@ -92,7 +92,7 @@ export function activate(context: vscode.ExtensionContext) {
 		await UpCloudProfileManager.SelectProfile(context);
 	});
 
-	vscode.commands.registerCommand('S3TreeView.EnterKeysForStorage', (storage) => {
+	vscode.commands.registerCommand('UpCloudTreeView.EnterKeysForStorage', (storage) => {
 		UpCloudKeyForm.Show(context, storage);
 	});
 	  
@@ -119,11 +119,10 @@ export function activate(context: vscode.ExtensionContext) {
 		upCloudTreeProvider
 	  );
 
-	vscode.commands.registerCommand('S3TreeView.OpenExplorerFromUpCloudBucket', (item: S3TreeItem) => {
+	vscode.commands.registerCommand('UpCloudTreeView.OpenExplorerFromUpCloudBucket', (item: S3TreeItem) => {
 		console.log('Command triggered, client exists =', !!item.s3Client);
 	  
-		// ✅ Now you have the real instance, just pass it along
-		const S3Explorer = require('./s3/S3Explorer'); // or `import` if it's available
+		const S3Explorer = require('./s3/S3Explorer');
 		S3Explorer.S3Explorer.Render(context.extensionUri, item);
 	  });
 

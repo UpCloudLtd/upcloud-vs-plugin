@@ -40,7 +40,7 @@
         "title": "S3TreeView: Select UpCloud Profile"
       },
       {
-        "command": "S3TreeView.EnterKeysForStorage",
+        "command": "UpCloudTreeView.EnterKeysForStorage",
         "title": "Enter Access Keys for Object Storage"
       },
       {
