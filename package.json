@@ -6,7 +6,7 @@
   "publisher": "Upcloud",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/UpCloudLtd/upcloud-vs-plugin.git"
   },
   "icon": "media/aws-s3-logo-extension.png",
   "engines": {
