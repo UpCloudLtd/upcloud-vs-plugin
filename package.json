@@ -2,7 +2,7 @@
   "name": "upcloud-vs-code-plugin",
   "displayName": "Upcloud",
   "description": "Manage Upcloud Resources ",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "Upcloud",
   "repository": {
     "type": "git",
