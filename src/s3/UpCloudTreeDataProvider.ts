@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { UpCloudProfileManager } from '../upcloud/UpCloudProfileManager';
-import { fetchObjectStorages } from '../upcloud/UpCloudAPI';
+import { fetchClusters, fetchObjectStorages } from '../upcloud/UpCloudAPI';
 import { TreeItemType, TypedTreeItem } from './TreeItemTypes';
 import { ObjectStorageConfig } from '../common/UpCloudTypes';
 import {
@@ -10,6 +10,7 @@ import {
 import { UpCloudKeyManager } from '../upcloud/UpCloudKeyManager';
 import { S3TreeItem } from './S3TreeItem';
 import { S3TreeItemType } from './S3TreeItem';
+import { getPluginUserAgent } from '../common/VersionUtils';
 
 export class UpCloudTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
   private _onDidChangeTreeData: vscode.EventEmitter<vscode.TreeItem | undefined | void> = new vscode.EventEmitter();
@@ -37,7 +38,10 @@ export class UpCloudTreeDataProvider implements vscode.TreeDataProvider<vscode.T
     }
     
     if (!element) {
-      return [new TypedTreeItem('Object Storages', TreeItemType.RootObjectStorages)];
+      return [
+        new TypedTreeItem('Object Storages', TreeItemType.RootObjectStorages),
+        new TypedTreeItem('Kubernetes Clusters', TreeItemType.RootKubernetes)
+      ];
     }
 
     const typedElement = element as TypedTreeItem;
@@ -72,6 +76,7 @@ export class UpCloudTreeDataProvider implements vscode.TreeDataProvider<vscode.T
           endpoint: `https://${updatedStorage.endpoint}`,
           forcePathStyle: true,
           region: 'auto',
+          customUserAgent: getPluginUserAgent(),
           credentials: {
             accessKeyId: updatedStorage.accessKeyId!,
             secretAccessKey: updatedStorage.secretAccessKey!,
@@ -105,6 +110,23 @@ export class UpCloudTreeDataProvider implements vscode.TreeDataProvider<vscode.T
         });
       } catch (err: any) {
         vscode.window.showErrorMessage(`Failed to fetch buckets for ${storage.name}: ${err.message}`);
+        return [];
+      }
+    }
+    if (typedElement.type === TreeItemType.RootKubernetes) {
+      try {
+        const clusters = await fetchClusters(this.context);
+        return clusters.map((cluster: any) => {
+          const item = new TypedTreeItem(cluster.name, TreeItemType.KubernetesCluster, cluster);
+          item.command = {
+            command: 'UpCloudTreeView.getKubeconfig',
+            title: 'Get Kubeconfig',
+            arguments: [cluster.uuid]
+          };
+          return item;
+        });
+      } catch (err: any) {
+        vscode.window.showErrorMessage(`Failed to fetch clusters: ${err.message}`);
         return [];
       }
     }

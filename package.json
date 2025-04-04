@@ -1,12 +1,12 @@
 {
-  "name": "aws-s3-vscode-extension",
-  "displayName": "Aws S3",
-  "description": "Browse Your AWS S3 Buckets, Upload, Download, Delete Files",
-  "version": "1.8.0",
-  "publisher": "NecatiARSLAN",
+  "name": "upcloud-vs-code-plugin",
+  "displayName": "Upcloud",
+  "description": "Manage Upcloud Resources ",
+  "version": "0.0.1",
+  "publisher": "Upcloud",
   "repository": {
     "type": "git",
-    "url": "https://github.com/necatiarslan/aws-s3"
+    "url": ""
   },
   "icon": "media/aws-s3-logo-extension.png",
   "engines": {
@@ -16,8 +16,8 @@
     "Other"
   ],
   "keywords": [
-    "AWS",
-    "S3"
+    "Upcloud",
+    "Object Storage"
   ],
   "activationEvents": [],
   "main": "./out/extension.js",
@@ -144,6 +144,10 @@
         "command": "UpCloudTreeView.RefreshObjectStorage",
         "title": "Refresh Buckets",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "UpCloudTreeView.getKubeconfig",
+        "title": "Get Kubeconfig"
       }
     ],
     "menus": {

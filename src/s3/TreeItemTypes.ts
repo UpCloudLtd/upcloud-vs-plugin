@@ -4,7 +4,10 @@ export enum TreeItemType {
   RootObjectStorages = "RootObjectStorages",
   ObjectStorage = "ObjectStorage",
   Bucket = "Bucket",
-  Message = "Message"
+  Message = "Message",
+  RootKubernetes = "RootKubernetes", 
+  KubernetesCluster = "KubernetesCluster",
+  KubernetesNode = "KubernetesNode",
 }
 
 export class TypedTreeItem extends vscode.TreeItem {

@@ -7,6 +7,8 @@ import { UpCloudProfileManager } from './upcloud/UpCloudProfileManager';
 import { UpCloudTreeDataProvider } from './s3/UpCloudTreeDataProvider';
 import { UpCloudKeyForm } from './upcloud/UpCloudKeyForm';
 import { TypedTreeItem } from './s3/TreeItemTypes';
+import { fetchKubeconfig } from './upcloud/UpCloudAPI';
+import { showKubeconfigWebview } from './kubernetes/kubeconfigWebview';
 
 export function activate(context: vscode.ExtensionContext) {
 	ui.logToOutput('Aws S3 Extension activation started');
@@ -119,6 +121,15 @@ export function activate(context: vscode.ExtensionContext) {
 		"UpCloudTreeView",
 		upCloudTreeProvider
 	  );
+
+	vscode.commands.registerCommand('UpCloudTreeView.getKubeconfig', async (uuid: string) => {
+	try {
+		const kubeconfig = await fetchKubeconfig(context, uuid);
+		showKubeconfigWebview(kubeconfig);
+	} catch (err: any) {
+		vscode.window.showErrorMessage(`Failed to fetch kubeconfig: ${err.message}`);
+	}
+	});
 
 	vscode.commands.registerCommand('UpCloudTreeView.RefreshObjectStorage', async (element: TypedTreeItem) => {
 	upCloudTreeProvider.refresh(element);
