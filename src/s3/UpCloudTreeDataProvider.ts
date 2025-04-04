@@ -65,7 +65,7 @@ export class UpCloudTreeDataProvider implements vscode.TreeDataProvider<vscode.T
     if (typedElement.type === TreeItemType.ObjectStorage) {
       const storage = typedElement.data as ObjectStorageConfig;
 
-      const updatedStorage = await UpCloudKeyManager.PromptForKeysIfMissing(this.context, storage);
+      const updatedStorage = await UpCloudKeyManager.GetStorageKeys(this.context, storage);
 
       if (!updatedStorage) {
         return [];

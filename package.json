@@ -41,7 +41,8 @@
       },
       {
         "command": "UpCloudTreeView.EnterKeysForStorage",
-        "title": "Enter Access Keys for Object Storage"
+        "title": "Enter Access Keys for Object Storage",
+        "icon": "$(key)"
       },
       {
         "command": "UpCloudTreeView.Refresh",
@@ -259,6 +260,12 @@
           "when": "viewItem == ObjectStorage",
           "group": "inline",
           "icon": "$(refresh)"
+        },
+        {
+          "command": "UpCloudTreeView.EnterKeysForStorage",
+          "when": "viewItem == ObjectStorage",
+          "group": "inline",
+          "icon": "$(key)"
         }
       ]
     },

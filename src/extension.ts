@@ -95,9 +95,13 @@ export function activate(context: vscode.ExtensionContext) {
 		await UpCloudProfileManager.SelectProfile(context);
 	});
 
-	vscode.commands.registerCommand('UpCloudTreeView.EnterKeysForStorage', (storage) => {
-		UpCloudKeyForm.Show(context, storage);
-	});
+	vscode.commands.registerCommand('UpCloudTreeView.EnterKeysForStorage', (treeItem: TypedTreeItem) => {
+		if (treeItem?.data) {
+		  UpCloudKeyForm.Show(context, treeItem.data);
+		} else {
+		  vscode.window.showWarningMessage("Missing object storage details.");
+		}
+	  });
 	  
 	vscode.commands.registerCommand('UpCloudTreeView.Refresh', () => {
 		upCloudTreeProvider.refresh();
