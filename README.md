@@ -47,11 +47,11 @@ With this extension, you can efficiently perform a wide range of tasks, includin
 - **Advanced Search**:  
   - Search across all buckets using file names, extensions, folders, or keys.  
 
-## Why Use It?
+### Why Use It?
 
 Whether you’re a developer, data scientist, or system administrator, the **UpCloud** extension simplifies your workflow with an intuitive, user-friendly interface designed to make Object Storage resource management faster and more convenient.
 
-### Kubernetes Kubeconfig Inspection
+## Kubernetes Kubeconfig Inspection
 
 - **View all cluster**:
   - View all cluster under your account
