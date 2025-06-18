@@ -24,6 +24,10 @@ There are two ways to install:
 code --install-extension path/to/upcloud-vs-code-plugin-x.y.z.vsix
 ```
 
+In this video you can see visually how to install it:
+[how-to-use-upcloud-vs-plugin.webm](https://github.com/user-attachments/assets/f2525b57-4953-42ab-a30c-0ce9a448b826)
+
+
 # UpCloud Extension for Visual Studio Code
 
 The **UpCloud** extension for Visual Studio Code features are:
@@ -47,14 +51,21 @@ With this extension, you can efficiently perform a wide range of tasks, includin
 - **Advanced Search**:  
   - Search across all buckets using file names, extensions, folders, or keys.  
 
-### Why Use It?
-
-Whether you’re a developer, data scientist, or system administrator, the **UpCloud** extension simplifies your workflow with an intuitive, user-friendly interface designed to make Object Storage resource management faster and more convenient.
-
 ## Kubernetes Kubeconfig Inspection
+Allows you to inspect your clusters and get the kubeconfig files.
+
+### Features
 
 - **View all cluster**:
   - View all cluster under your account
 
 - **Inspect Kubeconfig**
   - For each cluster you will be able to see its kubeconfig
+
+### Why Use It?
+
+Whether you’re a developer, data scientist, or system administrator, the **UpCloud** extension simplifies your workflow with an intuitive, user-friendly interface designed to make Object Storage resource management faster and more convenient. You will be able also to inspect your clusters and get their kubeconfigs right on the IDE.
+
+### How to use it
+
+
