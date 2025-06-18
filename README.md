@@ -67,5 +67,6 @@ Allows you to inspect your clusters and get the kubeconfig files.
 Whether you’re a developer, data scientist, or system administrator, the **UpCloud** extension simplifies your workflow with an intuitive, user-friendly interface designed to make Object Storage resource management faster and more convenient. You will be able also to inspect your clusters and get their kubeconfigs right on the IDE.
 
 ### How to use it
+Check this video: [how-to-use-upcloud-vs-plugin.webm](https://github.com/user-attachments/assets/bc7c76c8-1309-41ac-a341-0eac47056945)
 
 
